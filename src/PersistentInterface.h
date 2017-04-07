@@ -236,7 +236,7 @@ public: // publish
 
     virtual void remove_publish_by_msg_id(uint16_t msg_id)=0;
 
-    virtual void remove_publish_by_publish_id(uint16_t msg_id)=0;
+    virtual void remove_publish_by_publish_id(uint16_t publish_id)=0;
 
 public: // gateway configuration
 
