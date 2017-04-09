@@ -162,7 +162,7 @@ CoreImpl::handle_timeout(const CLIENT_STATUS &status, uint32_t duration, uint32_
         char buf[24];
         memset(&buf, 0, sizeof(buf));
         persistent->get_client_id((char *) &buf);
-        logger->start_log(buf, 1);
+        logger->start_log(buf, 3);
         logger->append_log(" ");
         append_device_address(&address);
         logger->append_log(" seconds since last message: ");
