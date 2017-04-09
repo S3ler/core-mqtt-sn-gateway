@@ -138,6 +138,8 @@ public:    // gateway connection status
     virtual CORE_RESULT notify_mqtt_connected() = 0;
 
     virtual CORE_RESULT notify_mqttsn_connected() = 0;
+
+    virtual CORE_RESULT reset_timeout(device_address *address) = 0;
 };
 
 

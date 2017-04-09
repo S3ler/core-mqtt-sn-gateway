@@ -107,6 +107,9 @@ private:
     void handle_client_publishes(CLIENT_STATUS status, const char *client_id, device_address *address);
 
     void append_device_address(device_address *pAddress);
+
+public:
+    CORE_RESULT reset_timeout(device_address *address) override;
 };
 
 

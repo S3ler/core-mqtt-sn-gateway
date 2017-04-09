@@ -1457,5 +1457,34 @@ void CoreImpl::append_device_address(device_address *pAddress) {
     sprintf(uint8_buf, "%d", pAddress->bytes[sizeof(device_address) - 1]);
     logger->append_log(uint8_buf);
 }
+
+CORE_RESULT CoreImpl::reset_timeout(device_address *address) {
+    persistent->start_client_transaction(address);
+    CLIENT_STATUS status = persistent->get_client_status();
+    if (status == ACTIVE || status == ASLEEP || status == AWAKE) {
+        persistent->set_timeout(0);
+    }
+#if CORE_DEBUG
+    char buf[24];
+    memset(&buf, 0, sizeof(buf));
+    persistent->get_client_id((char *) &buf);
+    logger->start_log(buf, 3);
+    logger->append_log(" ");
+    append_device_address(&address);
+    logger->append_log(" reset client timeout - ");
+    logger->append_log(buf);
+#endif
+
+    if(persistent->apply_transaction()){
+#if CORE_DEBUG
+        logger->append_log(" - SUCCESS");
+
+#endif
+        return SUCCESS;
+    }
+#if CORE_DEBUG
+    logger->append_log(" - ERROR");
+#endif
+}
 // THERE IS ALWAYS ONLY ONE MESSAGE IN FLIGHT
 

@@ -664,7 +664,7 @@ void MqttSnMessageHandler::parse_pingreq(device_address *address, uint8_t *bytes
 }
 
 void MqttSnMessageHandler::handle_pingreq(device_address *address) {
-    //core->reset_timeout(address);
+    core->reset_timeout(address);
     send_pingresp(address);
 }
 
