@@ -251,6 +251,7 @@ struct msg_regack : public message_header {
     }
 };
 
+#pragma pack(push, 1) 
 struct msg_publish : public message_header {
     uint8_t flags;
     uint16_t topic_id;
@@ -288,6 +289,7 @@ struct msg_publish : public message_header {
         memcpy(this->data, s_data, s_data_len);
     }
 };
+#pragma pack(pop) 
 
 struct msg_publish_send : public message_header {
     uint8_t flags;
