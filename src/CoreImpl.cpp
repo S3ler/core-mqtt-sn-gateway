@@ -1470,7 +1470,7 @@ CORE_RESULT CoreImpl::reset_timeout(device_address *address) {
     persistent->get_client_id((char *) &buf);
     logger->start_log(buf, 3);
     logger->append_log(" ");
-    append_device_address(&address);
+    append_device_address(address);
     logger->append_log(" reset client timeout - ");
     logger->append_log(buf);
 #endif
