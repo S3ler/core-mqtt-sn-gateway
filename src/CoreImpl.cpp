@@ -11,9 +11,9 @@
 bool CoreImpl::begin() {
     if (persistent != nullptr && mqtt != nullptr && mqttsn != nullptr && timeout_system != nullptr) {
         if (persistent->begin() && mqtt->begin() && mqttsn->begin()) {
-            uint16_t timeout_heartbeat_duration = persistent->get_timeout_check_duration();
+            uint32_t timeout_heartbeat_duration = (uint32_t) persistent->get_timeout_check_duration() * (uint32_t) 1000;
             timeout_system->set_heartbeat(timeout_heartbeat_duration);
-            uint16_t advertise_heartbeat_duration = persistent->get_advertise_duration();
+            uint32_t advertise_heartbeat_duration = (uint32_t) persistent->get_advertise_duration() * (uint32_t) 1000;
             advertise_system->set_heartbeat(advertise_heartbeat_duration);
             return true;
         }
@@ -1498,7 +1498,7 @@ CORE_RESULT CoreImpl::reset_timeout(device_address *address) {
     logger->append_log(buf);
 #endif
 
-    if(persistent->apply_transaction()){
+    if (persistent->apply_transaction()) {
 #if CORE_DEBUG
         logger->append_log(" - SUCCESS");
 
