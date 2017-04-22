@@ -38,7 +38,9 @@ public:
 
     virtual void setLogger(LoggerInterface *logger)=0;
 
-    virtual void setSystem(System* system)=0;
+    virtual void setSystem(System *system)=0;
+
+    virtual void setDurationSystem(System *system)=0;
 
     virtual void loop() = 0;
 
@@ -96,13 +98,15 @@ public:
             bool short_topic,
             bool retain, int8_t qos, bool dup, uint16_t *new_topic_id)=0;
 
-    virtual CORE_RESULT add_subscription(device_address *address, uint16_t topic_id, uint16_t msg_id, bool short_topic, uint8_t qos, bool dup,uint16_t* new_topic_id,uint8_t* granted_qos) = 0;
+    virtual CORE_RESULT
+    add_subscription(device_address *address, uint16_t topic_id, uint16_t msg_id, bool short_topic, uint8_t qos,
+                     bool dup, uint16_t *new_topic_id, uint8_t *granted_qos) = 0;
 
     virtual CORE_RESULT
     delete_subscription(device_address *address, uint16_t topic_id, uint16_t msg_id, bool short_topic, bool dup)=0;
 
     virtual CORE_RESULT
-    delete_subscription(device_address *address, char* topic_name, uint16_t msg_id, bool dup)=0;
+    delete_subscription(device_address *address, char *topic_name, uint16_t msg_id, bool dup)=0;
 
     virtual CORE_RESULT set_disconnected(device_address *address)=0;
 
@@ -116,12 +120,11 @@ public:
     virtual CORE_RESULT set_awake(device_address *address)  = 0;
 
 
-
     virtual CORE_RESULT publish(char *topic_name, uint8_t *data, uint32_t data_length, bool retain) = 0;
 
 public:    // gateway configuration
 
-    virtual CORE_RESULT get_gateway_id(uint8_t* gateway_id)=0;
+    virtual CORE_RESULT get_gateway_id(uint8_t *gateway_id)=0;
 
     virtual CORE_RESULT get_mqtt_config(uint8_t *server_ip, uint16_t *server_port, char *client_id) = 0;
 

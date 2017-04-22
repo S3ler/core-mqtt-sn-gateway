@@ -240,6 +240,8 @@ public: // publish
 
 public: // gateway configuration
 
+    virtual uint16_t get_timeout_check_duration() = 0;
+
     virtual uint16_t get_advertise_duration() = 0;
 
     virtual bool get_gateway_id(uint8_t *gateway_id) = 0;

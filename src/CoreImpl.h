@@ -14,8 +14,8 @@ private:
     MqttMessageHandlerInterface *mqtt = nullptr;
     MqttSnMessageHandler *mqttsn = nullptr;
     LoggerInterface *logger = nullptr;
-    System *system = nullptr;
-
+    System *timeout_system = nullptr;
+    System *advertise_system = nullptr;
 
 public:
     virtual bool begin();
@@ -29,6 +29,8 @@ public:
     virtual void setLogger(LoggerInterface *logger);
 
     virtual void setSystem(System *system);
+
+    virtual void setDurationSystem(System *system);
 
     virtual void loop();
 

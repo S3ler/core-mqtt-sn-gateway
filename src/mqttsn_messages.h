@@ -92,10 +92,14 @@ struct message_header {
 struct msg_advertise : public message_header {
     uint8_t gw_id;
     uint16_t duration;
+    device_address address;
 
-    msg_advertise(uint8_t gw_id, uint16_t duration) : gw_id(gw_id), duration(duration) {
+    msg_advertise(uint8_t gw_id, uint16_t duration, device_address *gw_address) {
         length = 5;
         type = MQTTSN_ADVERTISE;
+        this->gw_id = gw_id;
+        this->duration = duration;
+        memcpy(this->address.bytes, gw_address, sizeof(device_address));
     }
 };
 
@@ -127,7 +131,7 @@ struct msg_connect : public message_header {
     uint16_t duration;
     char client_id[24];
 
-    msg_connect(bool will, bool clean_session, uint8_t protocol_id, uint16_t duration,  const char *client_id){
+    msg_connect(bool will, bool clean_session, uint8_t protocol_id, uint16_t duration, const char *client_id) {
 
         uint8_t client_id_length = (uint8_t) strlen(client_id);
         if (client_id_length > 22) {
@@ -163,7 +167,8 @@ struct msg_connack : public message_header {
 struct msg_willtopic : public message_header {
     uint8_t flags;
     char will_topic[252];
-    msg_willtopic(const char* willtopic, int8_t qos, bool retain) {
+
+    msg_willtopic(const char *willtopic, int8_t qos, bool retain) {
         memset(this, 0, sizeof(this));
         length = 3 + strlen(willtopic) + 1;
         type = MQTTSN_WILLTOPIC;
@@ -182,6 +187,7 @@ struct msg_willtopic : public message_header {
 
 struct msg_willmsg : public message_header {
     uint8_t willmsg[253];
+
     msg_willmsg(const uint8_t *s_data, uint8_t s_data_len) {
         memset(this, 0, sizeof(this));
         this->length = ((uint8_t) 2) + s_data_len;
@@ -231,6 +237,7 @@ struct msg_regack : public message_header {
 };
 
 #pragma pack(push, 1)
+
 struct msg_publish : public message_header {
     uint8_t flags;
     uint16_t topic_id;
@@ -268,6 +275,7 @@ struct msg_publish : public message_header {
         memcpy(this->data, s_data, s_data_len);
     }
 };
+
 #pragma pack(pop)
 
 struct msg_publish_send : public message_header {
@@ -303,6 +311,7 @@ struct msg_subscribe : public message_header {
 };
 
 #pragma pack(push, 1)
+
 struct msg_subscribe_shorttopic : public msg_subscribe {
     uint16_t message_id;
     uint16_t topic_id;
@@ -337,7 +346,6 @@ struct msg_subscribe_shorttopic : public msg_subscribe {
 #pragma pack(pop)
 
 
-
 struct msg_subscribe_topicname : public msg_subscribe {
     uint16_t message_id;
     char topic_name[250];
@@ -361,6 +369,7 @@ struct msg_subscribe_topicname : public msg_subscribe {
 };
 
 #pragma pack(push, 1)
+
 struct msg_suback : public message_header {
     uint8_t flags;
     uint16_t topic_id;
@@ -383,6 +392,7 @@ struct msg_suback : public message_header {
         this->return_code = return_code;
     }
 };
+
 #pragma pack(pop)
 
 #pragma pack(push, 1)

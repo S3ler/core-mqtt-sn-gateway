@@ -246,9 +246,10 @@ void MqttSnMessageHandler::handle_willmsg(device_address *address, uint8_t *will
     }
 }
 
-void MqttSnMessageHandler::send_advertise(device_address *address, uint8_t gw_id, uint16_t duration) {
-    msg_advertise to_send(gw_id, duration);
-    if (!socket->send(address, (uint8_t *) &to_send, sizeof(msg_advertise))) {
+void MqttSnMessageHandler::send_advertise(uint8_t gw_id, uint16_t duration) {
+    device_address* own_address = socket->getAddress();
+    msg_advertise to_send(gw_id, duration, own_address);
+    if (!socket->send(socket->getBroadcastAddress(), (uint8_t *) &to_send, sizeof(msg_advertise))) {
         core->notify_mqttsn_disconnected();
     }
 }
@@ -316,7 +317,8 @@ MqttSnMessageHandler::send_regack(device_address *address, uint16_t topic_id, ui
 }
 
 void
-MqttSnMessageHandler::send_register(device_address *address, uint16_t topic_id, uint16_t msg_id, const char *topic_name) {
+MqttSnMessageHandler::send_register(device_address *address, uint16_t topic_id, uint16_t msg_id,
+                                    const char *topic_name) {
     msg_register to_send(topic_id, msg_id, topic_name);
     if (!socket->send(address, (uint8_t *) &to_send, sizeof(msg_register) + sizeof(topic_name))) {
         core->notify_mqttsn_disconnected();

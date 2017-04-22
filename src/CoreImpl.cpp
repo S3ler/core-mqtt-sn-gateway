@@ -9,8 +9,12 @@
 #endif
 
 bool CoreImpl::begin() {
-    if (persistent != nullptr && mqtt != nullptr && mqttsn != nullptr && system != nullptr) {
+    if (persistent != nullptr && mqtt != nullptr && mqttsn != nullptr && timeout_system != nullptr) {
         if (persistent->begin() && mqtt->begin() && mqttsn->begin()) {
+            uint16_t timeout_heartbeat_duration = persistent->get_timeout_check_duration();
+            timeout_system->set_heartbeat(timeout_heartbeat_duration);
+            uint16_t advertise_heartbeat_duration = persistent->get_advertise_duration();
+            advertise_system->set_heartbeat(advertise_heartbeat_duration);
             return true;
         }
     }
@@ -34,11 +38,14 @@ void CoreImpl::setLogger(LoggerInterface *logger) {
 }
 
 void CoreImpl::setSystem(System *system) {
-    this->system = system;
+    this->timeout_system = system;
+}
+
+void CoreImpl::setDurationSystem(System *system) {
+    this->advertise_system = system;
 }
 
 void CoreImpl::loop() {
-
 
     if (!persistent->is_mqttsn_online() || !persistent->is_mqtt_online()) {
         if (persistent->is_mqttsn_online() && !persistent->is_mqtt_online()) {
@@ -53,14 +60,30 @@ void CoreImpl::loop() {
         } else {
             // both are disconnected
             set_all_clients_lost();
-            system->exit();
+            timeout_system->exit();
         }
     }
 
-    bool has_heart_beaten = system->has_beaten();
+    bool has_advertise_beaten = advertise_system->has_beaten();
+#if CORE_DEBUG
+    if (has_advertise_beaten) {
+        uint16_t duration = (uint16_t) advertise_system->get_heartbeat();
+        uint8_t gw_id = 0;
+        persistent->get_gateway_id(&gw_id);
+        mqttsn->send_advertise(gw_id, duration);
 
-    // TODO write advertise here
-    // if hasbeaten and > advertise duration and core->mqtt/sn connecte) => send advertise package
+        logger->start_log("send ADVERTISE (d", 1);
+        char buf[24];
+        memset(&buf, 0, sizeof(buf));
+        sprintf(buf, "%d", duration);
+        logger->append_log(buf);
+        logger->append_log(")");
+    }
+#endif
+
+
+    bool has_heart_beaten = timeout_system->has_beaten();
+
 #if CORE_DEBUG
     if (has_heart_beaten) {
         logger->start_log("check client for timeout", 3);
@@ -79,7 +102,7 @@ void CoreImpl::loop() {
 
     uint32_t elapsed_time = 0;
     if (has_heart_beaten) {
-        elapsed_time = system->get_elapsed_time();
+        elapsed_time = timeout_system->get_elapsed_time();
     }
     persistent->get_last_client_address(&last_client_address);
 
@@ -1263,8 +1286,8 @@ void CoreImpl::process_mqttsn_offline_procedure() {
     }
     mqtt->disconnect();
 
-    system->sleep(5000);
-    system->exit();
+    timeout_system->sleep(5000);
+    timeout_system->exit();
 }
 
 void CoreImpl::process_mqtt_offline_procedure() {
@@ -1281,7 +1304,7 @@ void CoreImpl::process_mqtt_offline_procedure() {
     // afterwards we check if the we have connected clients, if not we shutdown the gateway.
 
 
-    bool has_heart_beaten = system->has_beaten();
+    bool has_heart_beaten = timeout_system->has_beaten();
 
 #if CORE_DEBUG
     if (has_heart_beaten) {
@@ -1300,7 +1323,7 @@ void CoreImpl::process_mqtt_offline_procedure() {
     uint32_t timeout;
     uint32_t duration;
 
-    uint32_t elapsed_time = system->get_elapsed_time() / 1000;
+    uint32_t elapsed_time = timeout_system->get_elapsed_time() / 1000;
 
     persistent->get_last_client_address(&last_client_address);
 
@@ -1315,7 +1338,7 @@ void CoreImpl::process_mqtt_offline_procedure() {
 #if CORE_DEBUG
         logger->log("no clients connected - shutting down gateway", 0);
 #endif
-        system->exit();
+        timeout_system->exit();
     }
 
     persistent->get_nth_client(0, client_id, &address, &status, &duration, &timeout);
@@ -1486,5 +1509,7 @@ CORE_RESULT CoreImpl::reset_timeout(device_address *address) {
     logger->append_log(" - ERROR");
 #endif
 }
+
+
 // THERE IS ALWAYS ONLY ONE MESSAGE IN FLIGHT
 

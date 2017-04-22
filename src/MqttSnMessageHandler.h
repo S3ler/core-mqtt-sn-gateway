@@ -14,7 +14,9 @@
 
 
 class SocketInterface;
+
 class Core;
+
 /**
  * Parses and routes incoming message to the Core class and/r answers mqtt-sn message immediately if possible.
  * Usage of this class:
@@ -140,7 +142,7 @@ private:
 
 public:
 
-    void send_advertise(device_address *address, uint8_t gw_id, uint16_t duration);
+    void send_advertise(uint8_t gw_id, uint16_t duration);
 
     void send_gwinfo(device_address *address, uint8_t radius, uint8_t gw_id, uint8_t *gw_add, uint8_t gw_add_len);
 
