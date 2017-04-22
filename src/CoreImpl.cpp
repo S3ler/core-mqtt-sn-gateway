@@ -757,7 +757,7 @@ CoreImpl::delete_subscription(device_address *address, uint16_t topic_id, uint16
     }
 
     bool unsubscribe = false;
-    if (!persistent->is_subscribed(topic_name)) {
+    if (persistent->is_subscribed(topic_name)) {
         persistent->delete_subscription(topic_id);
         persistent->decrement_global_subscription_count(topic_name);
         uint32_t subscription_count = persistent->get_global_topic_subscription_count(topic_name);
@@ -791,7 +791,7 @@ CORE_RESULT CoreImpl::delete_subscription(device_address *address, char *topic_n
     uint16_t topic_id = persistent->get_topic_id(topic_name);
 
     bool unsubscribe = false;
-    if (!persistent->is_subscribed(topic_name)) {
+    if (persistent->is_subscribed(topic_name)) {
         persistent->delete_subscription(topic_id);
         persistent->decrement_global_subscription_count(topic_name);
         uint32_t subscription_count = persistent->get_global_topic_subscription_count(topic_name);

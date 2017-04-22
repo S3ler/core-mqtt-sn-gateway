@@ -1,26 +1,3 @@
-/*
-The MIT License (MIT)
-
-Copyright (C) 2014 John Donovan
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
 
 #ifndef MQTTSN_GATEWAY_MQTTSN_MESSAGES_H
 #define MQTTSN_GATEWAY_MQTTSN_MESSAGES_H
@@ -42,6 +19,8 @@ THE SOFTWARE.
 #define FLAG_TOPIC_NAME 0x00
 #define FLAG_TOPIC_PREDEFINED_ID 0x01
 #define FLAG_TOPIC_SHORT_NAME 0x02
+#define FLAG_TOPIC_RESERVED 0x03
+
 
 #define QOS_MASK (FLAG_QOS_0 | FLAG_QOS_1 | FLAG_QOS_2 | FLAG_QOS_M1)
 #define TOPIC_MASK (FLAG_TOPIC_NAME | FLAG_TOPIC_PREDEFINED_ID | FLAG_TOPIC_SHORT_NAME)
@@ -251,7 +230,7 @@ struct msg_regack : public message_header {
     }
 };
 
-#pragma pack(push, 1) 
+#pragma pack(push, 1)
 struct msg_publish : public message_header {
     uint8_t flags;
     uint16_t topic_id;
@@ -289,7 +268,7 @@ struct msg_publish : public message_header {
         memcpy(this->data, s_data, s_data_len);
     }
 };
-#pragma pack(pop) 
+#pragma pack(pop)
 
 struct msg_publish_send : public message_header {
     uint8_t flags;
@@ -323,7 +302,7 @@ struct msg_subscribe : public message_header {
     uint8_t flags;
 };
 
-
+#pragma pack(push, 1)
 struct msg_subscribe_shorttopic : public msg_subscribe {
     uint16_t message_id;
     uint16_t topic_id;
@@ -355,6 +334,9 @@ struct msg_subscribe_shorttopic : public msg_subscribe {
     }
 };
 
+#pragma pack(pop)
+
+
 
 struct msg_subscribe_topicname : public msg_subscribe {
     uint16_t message_id;
@@ -378,7 +360,7 @@ struct msg_subscribe_topicname : public msg_subscribe {
     }
 };
 
-
+#pragma pack(push, 1)
 struct msg_suback : public message_header {
     uint8_t flags;
     uint16_t topic_id;
@@ -401,7 +383,9 @@ struct msg_suback : public message_header {
         this->return_code = return_code;
     }
 };
+#pragma pack(pop)
 
+#pragma pack(push, 1)
 struct msg_unsubscribe : public message_header {
     uint8_t flags;
     uint16_t message_id;
@@ -410,6 +394,7 @@ struct msg_unsubscribe : public message_header {
         uint16_t topic_id;
     };
 };
+#pragma pack(pop)
 
 struct msg_unsubscribe_send : public message_header {
     uint8_t flags;
