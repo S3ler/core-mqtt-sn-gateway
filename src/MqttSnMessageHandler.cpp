@@ -113,7 +113,7 @@ void MqttSnMessageHandler::handle_searchgw(device_address *address, uint8_t radi
 void MqttSnMessageHandler::send_gwinfo(device_address *address, uint8_t radius, uint8_t gw_id, uint8_t *gw_add,
                                        uint8_t gw_add_len) {
     msg_gwinfo to_send(gw_id, gw_add);
-    if (!socket->send(address, (uint8_t *) &to_send, gw_add_len, radius)) {
+    if (!socket->send(socket->getBroadcastAddress(), (uint8_t *) &to_send, gw_add_len, radius)) {
         core->notify_mqttsn_disconnected();
     }
 }
