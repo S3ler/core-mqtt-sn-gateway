@@ -16,6 +16,8 @@ public:
     SocketInterface *socketInterface = nullptr;
     LoggerInterface *logger;
     System *system;
+    System *durationSystem;
+
 public:
 
     bool begin() {
@@ -48,6 +50,7 @@ public:
             coreInterface.setMqttSnMessageHandler(&mqttsnInterface);
             coreInterface.setLogger(logger);
             coreInterface.setSystem(system);
+            coreInterface.setSystem(durationSystem);
 
             if (logger->begin()) {
                 initialized = coreInterface.begin();
@@ -76,6 +79,10 @@ public:
 
     void setSystemInterface(System *system){
         Gateway::system = system;
+    }
+
+    void setDurationSystemInterface(System *system) {
+        Gateway::durationSystem = system;
     }
 
 
