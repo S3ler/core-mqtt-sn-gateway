@@ -9,7 +9,7 @@
 #endif
 
 bool CoreImpl::begin() {
-    if (persistent != nullptr && mqtt != nullptr && mqttsn != nullptr && timeout_system != nullptr) {
+    if (persistent != nullptr && mqtt != nullptr && mqttsn != nullptr && timeout_system != nullptr && advertise_system != nullptr) {
         if (persistent->begin() && mqtt->begin() && mqttsn->begin()) {
             uint32_t timeout_heartbeat_duration = (uint32_t) persistent->get_timeout_check_duration() * (uint32_t) 1000;
             timeout_system->set_heartbeat(timeout_heartbeat_duration);
@@ -24,7 +24,6 @@ bool CoreImpl::begin() {
     }
     return false;
 }
-
 void CoreImpl::setPersistent(PersistentInterface *persistent) {
     this->persistent = persistent;
 }

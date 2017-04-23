@@ -50,7 +50,7 @@ public:
             coreInterface.setMqttSnMessageHandler(&mqttsnInterface);
             coreInterface.setLogger(logger);
             coreInterface.setSystem(system);
-            coreInterface.setSystem(durationSystem);
+            coreInterface.setDurationSystem(durationSystem);
 
             if (logger->begin()) {
                 initialized = coreInterface.begin();
