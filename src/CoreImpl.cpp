@@ -15,6 +15,10 @@ bool CoreImpl::begin() {
             timeout_system->set_heartbeat(timeout_heartbeat_duration);
             uint32_t advertise_heartbeat_duration = (uint32_t) persistent->get_advertise_duration() * (uint32_t) 1000;
             advertise_system->set_heartbeat(advertise_heartbeat_duration);
+            uint8_t gw_id = 0;
+            if (!persistent->get_gateway_id(&gw_id)) {
+                return false;
+            }
             return true;
         }
     }
@@ -67,9 +71,13 @@ void CoreImpl::loop() {
     bool has_advertise_beaten = advertise_system->has_beaten();
 #if CORE_DEBUG
     if (has_advertise_beaten) {
-        uint16_t duration = (uint16_t) advertise_system->get_heartbeat();
+        uint16_t duration = (uint16_t) (advertise_system->get_heartbeat() / (uint32_t) 1000 );
         uint8_t gw_id = 0;
-        persistent->get_gateway_id(&gw_id);
+        if(!persistent->get_gateway_id(&gw_id)){
+            // no gateway id given - end program
+            set_all_clients_lost();
+            timeout_system->exit();
+        }
         mqttsn->send_advertise(gw_id, duration);
 
         logger->start_log("send ADVERTISE (d", 1);
