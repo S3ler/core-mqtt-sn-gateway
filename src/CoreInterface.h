@@ -75,6 +75,8 @@ public:
     virtual CORE_RESULT
     notify_regack_arrived(device_address *address, uint16_t topic_id, uint16_t msg_id, return_code_t return_code)=0;
 
+    virtual CORE_RESULT notify_parse_error(device_address *address)=0;
+
 /**
  *
  * @param address

@@ -121,11 +121,13 @@ void MqttSnMessageHandler::send_gwinfo(device_address *address, uint8_t radius, 
 void MqttSnMessageHandler::parse_connect(device_address *address, uint8_t *bytes) {
     msg_connect *msg = (msg_connect *) bytes;
     if (bytes[0] > 6 && bytes[1] == MQTTSN_CONNECT && msg->length == (6 + strlen(msg->client_id) + 1) &&
-        msg->protocol_id == PROTOCOL_ID) {
+        msg->protocol_id == PROTOCOL_ID && strlen(msg->client_id) < 24) {
         bool clean_session = (msg->flags & FLAG_CLEAN) != 0;
         bool will = (msg->flags & FLAG_WILL) != 0;
 
         handle_connect(address, msg->client_id, msg->duration, will, clean_session);
+    } else {
+        handle_parse_error(address);
     }
 
 }
@@ -165,7 +167,8 @@ void MqttSnMessageHandler::handle_connect(device_address *address, const char *c
 
 void MqttSnMessageHandler::parse_willtopic(device_address *address, uint8_t *bytes) {
     msg_willtopic *msg = (msg_willtopic *) bytes;
-    if (bytes[0] > 3 && bytes[1] == MQTTSN_WILLTOPIC && msg->length == (3 + strlen(msg->will_topic) + 1)) {
+    if (bytes[0] > 3 && bytes[1] == MQTTSN_WILLTOPIC && bytes[socket->getMaximumMessageLength() - 1] == 0 &&
+        msg->length == (3 + strlen(msg->will_topic) + 1)) {
         int8_t qos = 0;
         if ((msg->flags & FLAG_QOS_M1) == FLAG_QOS_M1) {
             qos = -1;
@@ -178,6 +181,8 @@ void MqttSnMessageHandler::parse_willtopic(device_address *address, uint8_t *byt
         }
         bool retain = (msg->flags & FLAG_WILL) != 0;
         handle_willtopic(address, msg->will_topic, retain, qos);
+    } else {
+        handle_parse_error(address);
     }
 }
 
@@ -247,7 +252,7 @@ void MqttSnMessageHandler::handle_willmsg(device_address *address, uint8_t *will
 }
 
 void MqttSnMessageHandler::send_advertise(uint8_t gw_id, uint16_t duration) {
-    device_address* own_address = socket->getAddress();
+    device_address *own_address = socket->getAddress();
     msg_advertise to_send(gw_id, duration, own_address);
     if (!socket->send(socket->getBroadcastAddress(), (uint8_t *) &to_send, sizeof(msg_advertise))) {
         core->notify_mqttsn_disconnected();
@@ -766,6 +771,12 @@ uint8_t MqttSnMessageHandler::get_maximum_publish_payload_length() {
         return 0;
     }
     return (socket->getMaximumMessageLength() - (uint8_t) 7);
+}
+
+void MqttSnMessageHandler::handle_parse_error(device_address *address) {
+    // TODO handle in core too
+    CORE_RESULT result = core->notify_parse_error(address);
+    send_disconnect(address);
 }
 
 

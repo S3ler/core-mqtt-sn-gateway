@@ -293,7 +293,6 @@ CoreImpl::add_client(const char *client_id, uint16_t duration, bool clean_sessio
         if (!clean_session) {
             persistent->reset_client(client_id, address, ((uint32_t) duration) * 1000);
         } else {
-
             // before we can remove the client, we must unsubscribe from all subscriptions
             this->remove_client_subscriptions(client_id);
             persistent->delete_client(client_id);
@@ -1013,6 +1012,43 @@ CORE_RESULT CoreImpl::notify_regack_arrived(device_address *address, uint16_t to
     }
 }
 
+CORE_RESULT CoreImpl::notify_parse_error(device_address *address) {
+    // TODO write test to check this method with: -will and -if the client is deleted properly
+    persistent->start_client_transaction(address);
+    if (persistent->client_exist()) {
+        persistent->set_client_state(DISCONNECTED);
+        persistent->set_client_await_message(MQTTSN_CONNECT);
+        if (persistent->has_client_will()) {
+            char willtopic[255];
+            memset(&willtopic, 0, sizeof(willtopic));
+            uint8_t willmsg[255];
+            memset(&willmsg, 0, sizeof(willmsg));
+            uint8_t willmsg_length = 0;
+            uint8_t qos = 0;
+            bool retain = false;
+            persistent->get_client_will((char *) willtopic, (uint8_t *) &willmsg, &willmsg_length, &qos,
+                                        &retain);
+
+            // NOT_SUPPORTED: will message retry
+            bool will_publish_result = mqtt->publish(willtopic, (const uint8_t *) willmsg, willmsg_length, qos,
+                                                     retain);
+        }
+        char client_id[24];
+        persistent->get_client_id((char*)&client_id);
+        this->remove_client_subscriptions(client_id);
+        persistent->delete_client(client_id);
+    }
+
+    uint8_t result = persistent->apply_transaction();
+    if (result == CLIENTNONEXISTENCE) {
+        return CLIENTNONEXISTENCE;
+    }
+
+    if (result == SUCCESS) {
+        return SUCCESS;
+    }
+}
+
 CORE_RESULT CoreImpl::notify_puback_arrived(device_address *address, uint16_t msg_id, uint16_t topic_id,
                                             return_code_t return_code) {
     persistent->start_client_transaction(address);
@@ -1516,6 +1552,8 @@ CORE_RESULT CoreImpl::reset_timeout(device_address *address) {
     logger->append_log(" - ERROR");
 #endif
 }
+
+
 
 
 // THERE IS ALWAYS ONLY ONE MESSAGE IN FLIGHT

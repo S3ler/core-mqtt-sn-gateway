@@ -186,6 +186,7 @@ public:
 
     void setLogger(LoggerInterface *logger);
 
+    void handle_parse_error(device_address *address);
 };
 
 

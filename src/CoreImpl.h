@@ -50,6 +50,8 @@ public:
     virtual CORE_RESULT
     notify_regack_arrived(device_address *address, uint16_t topic_id, uint16_t msg_id, return_code_t return_code);
 
+    virtual CORE_RESULT notify_parse_error(device_address *address);
+
     virtual CORE_RESULT
     publish(device_address *address, const uint8_t *data, uint16_t data_len, uint16_t msg_id, uint16_t topic_id,
             bool short_topic, bool retain, int8_t qos, bool dup, uint16_t *new_topic_id);
