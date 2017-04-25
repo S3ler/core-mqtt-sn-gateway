@@ -264,6 +264,8 @@ void MqttSnMessageHandler::parse_register(device_address *address, uint8_t *byte
     if (bytes[0] > 6 && bytes[1] == MQTTSN_REGISTER && msg->topic_id == 0x0000 &&
         msg->length == (6 + strlen(msg->topic_name) + 1)) {
         handle_register(address, msg->message_id, msg->topic_name);
+    }else{
+        handle_parse_error(address);
     }
 }
 
