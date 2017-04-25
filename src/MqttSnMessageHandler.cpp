@@ -491,9 +491,11 @@ void MqttSnMessageHandler::parse_subscribe(device_address *address, uint8_t *byt
             msg_subscribe_shorttopic *msg_short = (msg_subscribe_shorttopic *) bytes;
             bool short_topic = (msg->flags & FLAG_TOPIC_SHORT_NAME) != 0;
             handle_subscribe(address, msg_short->topic_id, msg_short->message_id, short_topic, (uint8_t) qos, dup);
-        } else if (bytes[0] > 6) {
+        } else if (!short_topic_or_predefined && bytes[0] > 6) {
             msg_subscribe_topicname *msg_topicname = (msg_subscribe_topicname *) bytes;
             handle_subscribe(address, msg_topicname->topic_name, msg_topicname->message_id, (uint8_t) qos, dup);
+        } else {
+            handle_parse_error(address);
         }
     }
 

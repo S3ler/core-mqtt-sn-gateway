@@ -345,6 +345,7 @@ struct msg_subscribe_shorttopic : public msg_subscribe {
 
 #pragma pack(pop)
 
+#pragma pack(push, 1)
 
 struct msg_subscribe_topicname : public msg_subscribe {
     uint16_t message_id;
@@ -367,6 +368,9 @@ struct msg_subscribe_topicname : public msg_subscribe {
         this->message_id = msg_id;
     }
 };
+
+#pragma pack(pop)
+
 
 #pragma pack(push, 1)
 
