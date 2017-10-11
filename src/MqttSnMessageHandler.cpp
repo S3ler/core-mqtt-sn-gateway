@@ -669,9 +669,12 @@ void MqttSnMessageHandler::parse_pingreq(device_address *address, uint8_t *bytes
     msg_pingreq *msg = (msg_pingreq *) bytes;
     if (bytes[0] == 2) {
         handle_pingreq(address);
-    } else if (bytes[0] > 2 && strlen(msg->client_id) < 24 && strlen(msg->client_id) == (msg->length - 3)) {
+        return;
+    } else if (bytes[0] > 2 && strlen(msg->client_id) < 24 && strlen(msg->client_id) > 0 && strlen(msg->client_id) == (msg->length - 3)) {
         handle_pingreq(address, msg->client_id);
+        return;
     }
+    handle_parse_error(address);
 }
 
 void MqttSnMessageHandler::handle_pingreq(device_address *address) {
