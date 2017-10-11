@@ -699,9 +699,12 @@ void MqttSnMessageHandler::parse_disconnect(device_address *address, uint8_t *by
     msg_disconnect *msg = (msg_disconnect *) bytes;
     if (bytes[0] == 2) {
         handle_disconnect(address);
+        return;
     } else if (bytes[0] == 4) {
         handle_disconnect(address, msg->duration);
+        return;
     }
+    handle_parse_error(address);
 }
 
 void MqttSnMessageHandler::handle_disconnect(device_address *address) {
