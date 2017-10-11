@@ -452,7 +452,7 @@ void MqttSnMessageHandler::send_disconnect(device_address *address, uint16_t dur
     to_send.to_disconnect();
     to_send.length = 4;
     to_send.duration = duration;
-    if (!socket->send(address, (uint8_t *) &to_send, sizeof(message_header))) {
+    if (!socket->send(address, (uint8_t *) &to_send, sizeof(msg_disconnect))) {
         core->notify_mqttsn_disconnected();
     }
 }
@@ -726,7 +726,12 @@ void MqttSnMessageHandler::handle_disconnect(device_address *address, uint16_t d
         send_disconnect(address);
         return;
     }
-    send_disconnect(address, duration);
+    // FIXME
+    // Here is an ambiguity in the standard
+    // The client cannot distinguish a disconnecting gateway and a gateway which answers accepts the sleep procedure
+    // We propose answering with a MQTT-SN disconnect packet containing the same duration value as the client sent.
+    // send_disconnect(address, duration);
+    send_disconnect(address);
 }
 
 void MqttSnMessageHandler::parse_puback(device_address *address, uint8_t *bytes) {
