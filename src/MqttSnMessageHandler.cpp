@@ -487,18 +487,26 @@ void MqttSnMessageHandler::parse_subscribe(device_address *address, uint8_t *byt
             return;
         }
         bool dup = (msg->flags & FLAG_DUP) != 0;
-        if (short_topic_or_predefined && bytes[0] == 7) {
+        if (short_topic_or_predefined && bytes[0] == 7
+            && !((msg->flags & FLAG_RETAIN) == FLAG_RETAIN)
+            && !((msg->flags & FLAG_WILL) == FLAG_WILL)
+            && !((msg->flags & FLAG_CLEAN) == FLAG_CLEAN)
+                ) {
             msg_subscribe_shorttopic *msg_short = (msg_subscribe_shorttopic *) bytes;
             bool short_topic = (msg->flags & FLAG_TOPIC_SHORT_NAME) != 0;
             handle_subscribe(address, msg_short->topic_id, msg_short->message_id, short_topic, (uint8_t) qos, dup);
-        } else if (!short_topic_or_predefined && bytes[0] > 6) {
+            return;
+        } else if (!short_topic_or_predefined && bytes[0] > 6
+                   && !((msg->flags & FLAG_RETAIN) == FLAG_RETAIN)
+                   && !((msg->flags & FLAG_WILL) == FLAG_WILL)
+                   && !((msg->flags & FLAG_CLEAN) == FLAG_CLEAN)
+                ) {
             msg_subscribe_topicname *msg_topicname = (msg_subscribe_topicname *) bytes;
             handle_subscribe(address, msg_topicname->topic_name, msg_topicname->message_id, (uint8_t) qos, dup);
-        } else {
-            handle_parse_error(address);
+            return;
         }
     }
-
+    handle_parse_error(address);
 }
 
 void MqttSnMessageHandler::send_suback(device_address *address, uint8_t qos, uint16_t topic_id, uint16_t msg_id,
@@ -670,7 +678,8 @@ void MqttSnMessageHandler::parse_pingreq(device_address *address, uint8_t *bytes
     if (bytes[0] == 2) {
         handle_pingreq(address);
         return;
-    } else if (bytes[0] > 2 && strlen(msg->client_id) < 24 && strlen(msg->client_id) > 0 && strlen(msg->client_id) == (msg->length - 3)) {
+    } else if (bytes[0] > 2 && strlen(msg->client_id) < 24 && strlen(msg->client_id) > 0 &&
+               strlen(msg->client_id) == (msg->length - 3)) {
         handle_pingreq(address, msg->client_id);
         return;
     }
