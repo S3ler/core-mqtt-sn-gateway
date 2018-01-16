@@ -9,3 +9,7 @@ CTestTestfile.cmake
 cmake-build-debug/*
 *~
 .idea/*
+
+core-mqtt-sn-gateway.cbp
+libcore-mqtt-sn-gateway.a
+
