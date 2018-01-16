@@ -17,5 +17,19 @@ struct device_address {
         bytes[4] = 0x0;
         bytes[5] = 0x0;
     }
+
+    device_address(uint8_t zero,
+                   uint8_t one,
+                   uint8_t two,
+                   uint8_t three,
+                   uint8_t four,
+                   uint8_t five) {
+            bytes[0] = zero;
+            bytes[1] = one;
+            bytes[2] = two;
+            bytes[3] = three;
+            bytes[4] = four;
+            bytes[5] = five;
+    }
 };
 #endif //GATEWAY_GLOBAL_DEFINES_H
