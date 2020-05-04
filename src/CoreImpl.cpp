@@ -1366,9 +1366,6 @@ void CoreImpl::process_mqtt_offline_procedure() {
     }
 #endif
 
-    logger->log("MQTT is offline", 1);
-
-
     // create buckets for to the client data
     device_address last_client_address;
     memset(&last_client_address, 0, sizeof(device_address));
