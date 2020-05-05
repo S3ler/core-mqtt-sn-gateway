@@ -62,6 +62,7 @@ void CoreImpl::loop() {
             return;
         } else {
             // both are disconnected
+            logger->log("No MQTT nor MQTT-SN connections detected.", 1);
             set_all_clients_lost();
             timeout_system->exit();
         }
@@ -1010,6 +1011,8 @@ CORE_RESULT CoreImpl::notify_regack_arrived(device_address *address, uint16_t to
     if (result == SUCCESS) {
         return SUCCESS;
     }
+
+    return ZERO;
 }
 
 CORE_RESULT CoreImpl::notify_parse_error(device_address *address) {
@@ -1047,6 +1050,8 @@ CORE_RESULT CoreImpl::notify_parse_error(device_address *address) {
     if (result == SUCCESS) {
         return SUCCESS;
     }
+
+    return ZERO;
 }
 
 CORE_RESULT CoreImpl::notify_puback_arrived(device_address *address, uint16_t msg_id, uint16_t topic_id,
@@ -1315,6 +1320,9 @@ void CoreImpl::remove_client_subscriptions(const char *client_id) {
 }
 
 void CoreImpl::process_mqttsn_offline_procedure() {
+
+    logger->log("MQTT-SN client is offline.", 1);
+
     char will_topic[255];
     memset(&will_topic, 0, sizeof(will_topic));
     char will_msg[255];
@@ -1327,9 +1335,11 @@ void CoreImpl::process_mqttsn_offline_procedure() {
         mqtt->publish(will_topic, (const uint8_t *) will_msg, (uint16_t) (strlen(will_msg) + 1), will_qos,
                       will_retain);
     }
+
     mqtt->disconnect();
 
     timeout_system->sleep(5000);
+
     timeout_system->exit();
 }
 
@@ -1346,6 +1356,7 @@ void CoreImpl::process_mqtt_offline_procedure() {
     // in this method we check if a client has more publishes, if not we disconnect him.
     // afterwards we check if the we have connected clients, if not we shutdown the gateway.
 
+    logger->log("MQTT is offline", 0);
 
     bool has_heart_beaten = timeout_system->has_beaten();
 
@@ -1354,7 +1365,6 @@ void CoreImpl::process_mqtt_offline_procedure() {
         logger->start_log("check client for timeout", 3);
     }
 #endif
-
 
     // create buckets for to the client data
     device_address last_client_address;
@@ -1551,6 +1561,8 @@ CORE_RESULT CoreImpl::reset_timeout(device_address *address) {
 #if CORE_DEBUG
     logger->append_log(" - ERROR");
 #endif
+
+    return ZERO;
 }
 
 
